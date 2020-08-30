@@ -1,0 +1,89 @@
+/* exercise 1
+
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 10
+
+void read_dim(int*,int*);
+int check_dim(int,int,int,int);
+void read_matrix(float[][MAX],int,int);
+void compute_product(float [][MAX],int,float[][MAX],int,int,float[][MAX],int*,int*);
+void write_matrix(float[][MAX],int,int,float[][MAX],int,int,float[][MAX],int,int);
+
+
+void print_matrix(int,int,int[][DIM]);
+void read_matrix(int,int,int[][DIM]);
+void multi_matrix(int[][DIM],int,int[][DIM],int,int[][DIM]);
+int main(int argc, char **argv){
+ int r1,r2,c1,c2,m1[DIM][DIM],m2[DIM][DIM],m3[DIM][DIM];
+ fprintf(stdout,"enter r1 c1 :\n");fscanf(stdin,"%d%d",&r1,&c1);
+ fprintf(stdout,"enter r2 c2 :\n");fscanf(stdin,"%d%d",&r2,&c2);
+ if(r1> DIM || r2>DIM || c1> DIM || c2>DIM || c1 != r2) fprintf(stdout,"error in input\n");
+ read_matrix(r1,c1,m1);
+ read_matrix(r2,c2,m2);
+ multi_matrix(m1,r1,m2,r2,m3);
+ print_matrix(r1,c2,m3);
+ return 0;
+}
+void write_matrix(int r,int c,float m[][DIM]){
+ int i,j;
+ for(i=0;i<r;i++){
+  for(j=0;j<c;j++) fprintf(stdout,"[%d]",m[i][j]);
+  fprintf(stdout,"\n");
+ }
+}
+void read_matrix(int r,int c, float m[][DIM]){
+ int i,j;
+ for(i=0;i<r;i++){
+  for(j=0;j<c;j++){
+   fprintf(stdout,"\nenter [%d][%d] element: ",i,j);
+   fscanf(stdin,"%d",&m[i][j]);
+  }
+ }
+}
+void compute_product(float m1[][DIM],int r1,float m2[][DIM],int r2, float m3[][DIM]){
+ int i,j,k;
+ for(i=0;i<r2;i++)
+  for(j=0;j<r1;j++){
+   m3[j][i] = 0;
+   for(k=0;k<r2;k++) m3[j][i] += m1[k][i] * m2[i][k];
+  }
+}
+
+**/
+/* exercise 2 */
+
+#include <stdlib.h>
+#include <stdio.h>
+#define MAX_CHAR 100
+
+int main(int argc, char **argv){
+ FILE *fp; char c;
+ int v_count[MAX_CHAR],h_count = 0,h_seq = 0, v_seq = 0,i,col;
+ if(argc < 2){ fprintf(stdout,"Invalid arguments");return -1;}
+ fp = fopen(argv[1],"r"); for(i=0;i<MAX_CHAR;i++)v_count[i]=0;
+ if(fp == NULL){ fprintf(stdout,"File not found"); return -1;}
+ col = 0;
+ while(fscanf(fp,"%c",&c) != EOF){
+
+  if(c == 'h' || c == 'H'){
+   h_count++;
+   if(h_nt >= 5) h_seq++;
+  }else h_count = 0;
+
+  if(c == 'v' || c == 'V'){
+   v_count[col]++;
+	printf("col: %d vcount: %d\n",col,v_count[col]);
+   if(v_count[col] >= 4){
+		printf("TEST");
+		 v_seq++;
+	}
+  }else v_count[col] = 0;
+
+  if(col == MAX_CHAR) col = 0;
+  else col++;
+ }
+ fprintf(stdout,"Number of v sequence: %d\nNumber of h sequence: %d\n",v_seq,h_seq);
+ fclose(fp);
+ return 0;
+}

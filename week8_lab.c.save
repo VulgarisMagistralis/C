@@ -1,0 +1,111 @@
+/*EX-1 DONE
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define MAX (20+1)
+
+typedef struct pff{
+ int price;
+ char id[6];
+ char *name;
+ struct pff *next;
+}model;
+typedef struct nope{
+ char *name;
+ char id[6];
+ model *models;
+ struct nope *next;
+}manu;
+void list_manu(manu*);
+void add_model(model*,manu*);
+manu *read_manus(char*);
+void read_models(char*,manu*);
+int main(int argc,char **argv){
+ manu *head;
+ head = read_manus(argv[1]);
+ read_models(argv[2], head);
+ list_manu(head);
+ return 0;
+}
+void read_models(char *file_name,manu *head){
+ FILE *model_file = fopen(file_name,"r");
+ char id[6],name[MAX];model *temp_model; int price;
+ while(fscanf(model_file,"%s%s%d",id,name,&price) != EOF){
+  temp_model = (model*)malloc(sizeof(model));
+  temp_model->name = (char*)malloc((strlen(name)+1)*sizeof(char));
+  strcpy(temp_model->name,name);
+  temp_model->price = price;
+  strcpy(temp_model->id,id);
+  temp_model->next = NULL;
+  add_model(temp_model,head);
+ }
+}
+void add_model(model *new_m,manu *head){
+ while(strcmp(head->id,new_m->id) != 0) head = head->next;
+ if(head->models == NULL) head->models = new_m;
+ else{
+  while(head->models->next != NULL)head->models = head->models->next;
+  head->models->next = new_m;
+ }
+}
+manu *read_manus(char *file_name){
+ manu *temp,*last=NULL,*head=NULL;
+ char id[6],name[MAX];
+ FILE *manufacturers = fopen(file_name,"r");
+ while(fscanf(manufacturers,"%s %s",name,id)!=EOF){
+  temp = (manu* )malloc(sizeof(manu));
+  temp->name=(char*)malloc(MAX*sizeof(char));
+  strcpy(temp->name,name);
+  strcpy(temp->id,id);
+  temp->models= NULL;
+  temp->next = NULL;
+  if(head == NULL){
+   head = temp;last = temp;
+  }else{
+   last->next = temp;last = last->next;
+  }
+ }
+ return head;
+}
+void list_manu(manu *head){
+ while(head != NULL){
+  printf("\nManufacturer: %s [%s]",head->name,head->id);
+  while(head->models != NULL){
+   printf("\nModel: %s %d",head->models->name,head->models->price);
+   head->models = head->models->next;
+  }
+  head = head->next;
+ }
+ printf("\n");
+}
+*/
+/*EX 2*/
+#include<math.h>
+#include<stdio.h>
+#include<stdlib.h>
+void bin_con(int,int*,int*);
+void wrap_binary(int);
+int main(int argc,char **argv){
+ wrap_binary(atoi(argv[1]));
+ return 0;
+}
+void wrap_binary(int number){
+ int i, size = 0, n = 1,*bits,temp;
+ while(n < number){
+  n = n * 2; size++;
+ }
+ printf("%d",size);
+ bits = (int*)malloc((size)* sizeof(int));
+ bin_con(number,bits,&size);
+}
+void bin_con(int number,int *bits,int *size){
+ if(number == 0 || number == 1){
+  bits[0] = number;
+  printf("%d",bits[0]);
+  return;
+ }
+ bits[*size] = number % 2;
+ number =(int)(number/2);
+ printf("%d",bits[--(*size)]);
+ bin_con(number,bits,size);
+}

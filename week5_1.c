@@ -1,0 +1,183 @@
+/* Cross  - FAIL*/
+
+/*GOOD FOR LOOKING MATRIX SENDING*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define FAIL -1
+#define SUCCESS 0
+#define MAX_CHAR 15+1
+#define Max(R,C) ((R > C)? R : C) //use thissss!!!!
+
+int str_len(char*);
+void print_matrix(char**,int);
+char **malloc_matrix(int,int);
+void find(char*,char**,int,int);
+void free_malloc(char**,int,int);
+char **read_matrix(char*,int*,int*);
+void read_words(char*,char**,int,int);
+int find_all(int,int,char*,char**,int,int);
+
+int main(int argc, char **argv){
+ char **matin; int R,C;
+ if(argc != 3)exit(FAIL);
+ matin = read_matrix(argv[1],&R,&C);
+ read_words(argv[2],matin,R,C);
+ free_malloc(matin,R,C);
+ return SUCCESS;
+}
+int find_all(int row,int col,char *word,char **matrix,int R,int C){
+ int offset[2][8] = {{0,0,-1,1,1,-1,-1,1},{1,-1,1,-1,0,0,-1,1}};
+ int i,j,flag,c,r;
+ for(i = 0; i < 8; i++){
+  flag = 1;
+  for(j = 1; j < str_len(word); j++){
+   r = row + j * offset[0][i];
+   c = col + j * offset[1][i];
+   if(c < 0 || r < 0 || r > R || c > C ||
+     matrix[r][c] != word[j]) flag = 0;
+  }
+  if(flag == 1){
+   for(j = 0; j < str_len(word); j++)
+   printf("At position[%d][%d]: %c\n",(row+j*offset[0][i]),(col+j*offset[1][i]),word[j]);
+   return SUCCESS;
+  }
+ }
+ return 0;
+}
+void read_words(char *name,char **matrix,int r,int c){
+ int i,j; char word[MAX_CHAR];
+ FILE *word_file = fopen(name,"r");
+ if(word_file == NULL) exit(FAIL);
+ while(fscanf(word_file,"%s",word) != EOF)
+  find(word,matrix,r,c);
+}
+void find(char *word,char **matrix,int r,int c){
+ int i,j;
+ for(i = 0; i < r; i++)
+  for(j = 0; j < c; j++)
+   if(matrix[i][j] == word[0] &&
+    find_all(i,j,word,matrix,r,c))
+    return;
+}
+char **malloc_matrix(int r,int c){
+ int i; char **matrix;
+ matrix = (char** )malloc(r * sizeof(char*));
+ if(matrix == NULL){
+  fprintf(stdout,"allocation error");
+  exit(FAIL);
+ }
+ for(i = 0; i < r; i++){
+  matrix[i] = (char* )malloc(c * sizeof(char));
+  if(matrix[i] == NULL){
+   fprintf(stderr,"not allocated");
+   exit(FAIL);
+  }
+ }
+ return (matrix);
+}
+char **read_matrix(char *file_name,int *r,int *c){ // add file and allocation errors
+ int i,j; char **matrix;
+ FILE *mat_file = fopen(file_name,"r");
+ fscanf(mat_file, "%d %d ", r,c);// %*c for ignoring new line why works without ?
+ matrix = malloc_matrix(*r,*c);
+ for(i = 0; i < *r; i++)
+  for(j = 0; j < *c; j++)
+   fscanf(mat_file,"%c",&matrix[i][j]);
+ return matrix;
+}
+void print_matrix(char **matrix,int r){
+ int i;
+ for(i = 0; i < r; i++)
+   fprintf(stdout,"%s",matrix[i]);
+}
+int str_len(char *s){
+ char *initial = s;
+ while(*s!='\0')s++;
+ return s - initial;
+}
+void free_malloc(char **matrix,int r,int c){
+ int i;
+ for(i=r-1;i>=0;i--)
+  free(matrix[i]);
+ free(matrix);
+}
+/* Snake - FAIL
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define SUCCESS 0
+#define FAIL -1
+//visited is just a flag
+typedef struct{
+ char value;
+ char visited;
+}element;
+void process_map(element**,int,int,int*,int*,int*);
+int find_length(int,int,int,int,element**);
+int main(int argc,char **argv){
+ element **map;int n_snake = 0,max_len = 0,min_len = 0;
+ int i,j,nr,nc;
+ ///READ_FILE
+ FILE *map_file = fopen(argv[1],"r");
+ fprintf(stdout,"Enter matrix row and col number:\n");
+ fscanf(stdin," %d %d",&nr,&nc);
+ map = (element** )malloc(nr * sizeof( element*));
+ if(map == NULL || argc < 1){fprintf(stderr,"error1 \n");exit(FAIL);}
+ for(i = 0; i < nr; i++){
+  map[i] =(element* )malloc(nc * sizeof(element));
+  if(map[i] == NULL){fprintf(stderr,"allocation error \n");exit(FAIL);}
+ }
+ for(i = 0; i < nr; i++){
+  for(j = 0; j < nc; j++){
+   while(fscanf(map_file,"%c",&map[i][j].value) != EOF){
+   fprintf(stdout,"%c",map[i][j].value);
+   map[i][j].visited = 0;   //initializing the flag
+   }
+  }
+  fscanf(map_file,"%*c"); //new line ignored
+ }
+ /////////////////// cheking
+ process_map(map,nr,nc,&max_len,&min_len,&n_snake);
+ fprintf(stdout,"\nNum of snakes: %d",n_snake);
+ fprintf(stdout,"\nMax length: %d",max_len);
+ fprintf(stdout,"\nMin length: %d\n",min_len);
+ //freee mapps
+ return SUCCESS;
+}
+void process_map(element **map,int R,int C,int *maxl,int *minl,int *n_snake){
+ int i,j,length;     /// + is the head of snake
+ printf("%c",map[3][2]);
+ for(i = 0; i < R; i++){
+  for(j = 0; j < C; j++){
+   if(map[i][j].value == '+' && map[i][j].visited != 1){
+    (*n_snake)++; printf("%c",map[i][j].value);
+    length = find_length(R,C,i,j,map); length = 5;
+    if(length > *maxl) *maxl = length;
+    else if( length < *minl) *minl = length;
+   }
+  }
+ }
+ printf("%d",length);
+}
+int find_length(int R,int C,int x,int y,element **map){
+ int i,j,length = 1,found,ended = 0;
+ map[x][y].visited = 1;
+ while(!ended){
+  found = 0;
+  for(i = x - 1; i < x + 1 && !found; i++){
+   for(j = y - 1; j < y + 1 && !found; j++){ // within borders if * found
+    if((map[i][j].value == '*') && (i < R) && (j < C) &&
+    (i >= 0) && (j >= 0) && (map[i][j].visited == 0)) found = 1;
+   }
+  }
+  if(found){
+   length++;
+   x = i; y = j;
+   map[x][y].visited = 1;
+  }else ended = 1;
+ }
+ return length;
+}
+*/
